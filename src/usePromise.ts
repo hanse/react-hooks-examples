@@ -70,7 +70,6 @@ export default function usePromise<T>(
 
     function abort() {
       aborted = true;
-
       dispatch({ type: 'rejected', error: new AbortError() });
     }
 

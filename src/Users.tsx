@@ -2,13 +2,18 @@ import React, { useState } from 'react';
 import { useAbortablePromise } from './usePromise';
 import JsonPrettyPrinter from './JsonPrettyPrinter';
 import Button from './Button';
-import { HttpError } from './errors';
+import { HttpError, TimeoutError } from './errors';
+import { timeout } from './promise';
 
 async function fetchUserById(
   id: number,
   options: RequestInit = {}
 ): Promise<{ id: number; name: string }> {
-  const response = await fetch(`/api/users/${id}`, options);
+  const response = await Promise.race([
+    timeout(1000),
+    fetch(`/api/users/${id}`, options)
+  ]);
+
   if (!response.ok) {
     throw new HttpError(response);
   }
@@ -33,12 +38,21 @@ function Users() {
   // );
 
   const [{ data, loading, error }, abort] = useAbortablePromise(
-    signal =>
-      Promise.all([
-        fetchUserById(offset + 1, { signal }),
-        fetchUserById(offset + 2, { signal }),
-        fetchUserById(offset + 3, { signal })
-      ]),
+    async signal => {
+      try {
+        return await Promise.all([
+          fetchUserById(offset + 1, { signal }),
+          fetchUserById(offset + 2, { signal }),
+          fetchUserById(offset + 3, { signal })
+        ]);
+      } catch (error) {
+        if (error instanceof TimeoutError) {
+          abort();
+        }
+
+        throw error;
+      }
+    },
     [offset]
   );
 
