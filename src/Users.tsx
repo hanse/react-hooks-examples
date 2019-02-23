@@ -3,14 +3,14 @@ import { useAbortablePromise } from './usePromise';
 import JsonPrettyPrinter from './JsonPrettyPrinter';
 import Button from './Button';
 import { HttpError, TimeoutError } from './errors';
-import { timeout } from './promise';
+import { timeout, abortable, delay } from './promise';
 
 async function fetchUserById(
   id: number,
   options: RequestInit = {}
 ): Promise<{ id: number; name: string }> {
   const response = await Promise.race([
-    timeout(1000),
+    timeout(6000),
     fetch(`/api/users/${id}`, options)
   ]);
 
@@ -43,7 +43,8 @@ function Users() {
         return await Promise.all([
           fetchUserById(offset + 1, { signal }),
           fetchUserById(offset + 2, { signal }),
-          fetchUserById(offset + 3, { signal })
+          fetchUserById(offset + 3, { signal }),
+          abortable(delay(1000).then(() => 'foo'), signal!)
         ]);
       } catch (error) {
         if (error instanceof TimeoutError) {
