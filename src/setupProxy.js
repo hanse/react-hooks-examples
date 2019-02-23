@@ -14,7 +14,9 @@ module.exports = function(app) {
   app.get('/api/users/:id', (req, res) => {
     const user = users.find(u => u.id === +req.params.id);
     if (!user) {
-      return res.status(404).send({ message: 'not found' });
+      return res
+        .status(404)
+        .send({ message: `user with id ${+req.params.id} not found` });
     }
 
     setTimeout(() => {

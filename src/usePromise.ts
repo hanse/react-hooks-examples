@@ -23,6 +23,7 @@ function reducer<T>(state: State<T>, action: Action<T>) {
     case 'resolved':
       return {
         ...state,
+        error: null,
         data: action.data,
         loading: false
       };
@@ -30,6 +31,7 @@ function reducer<T>(state: State<T>, action: Action<T>) {
     case 'rejected':
       return {
         ...state,
+        data: null,
         error: action.error,
         loading: false
       };
