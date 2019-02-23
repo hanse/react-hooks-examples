@@ -1,5 +1,6 @@
 import { useMemo, useEffect, useReducer } from 'react';
 import { AbortError } from './errors';
+import createAbortController from './createAbortController';
 
 type State<T> = {
   data: T | null;
@@ -39,6 +40,8 @@ function reducer<T>(state: State<T>, action: Action<T>) {
     case 'pending':
       return {
         ...state,
+        error: null,
+        data: null,
         loading: true
       };
 
@@ -105,4 +108,21 @@ export default function usePromise<T>(
 
   console.log(state);
   return state;
+}
+
+export function useAbortablePromise<T>(
+  promise: (signal: AbortSignal | undefined) => Promise<T>,
+  inputs: Array<any>
+) {
+  const controller = useMemo(createAbortController, inputs);
+  const abort = () => controller.abort();
+
+  const state = usePromise(
+    () => promise(controller.signal),
+    inputs,
+    controller.signal,
+    abort
+  );
+
+  return [state, abort] as [State<T>, () => void];
 }

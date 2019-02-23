@@ -1,31 +1,19 @@
-import React, { useMemo, useState } from 'react';
-import usePromise from './usePromise';
+import React, { useState } from 'react';
+import { useAbortablePromise } from './usePromise';
 import JsonPrettyPrinter from './JsonPrettyPrinter';
-import createAbortController from './createAbortController';
 import Button from './Button';
+import { HttpError } from './errors';
 
-function fetchUserById(id: number, options: RequestInit = {}) {
-  return fetch(`/api/users/${id}`, options).then(response => response.json());
-}
+async function fetchUserById(
+  id: number,
+  options: RequestInit = {}
+): Promise<{ id: number; name: string }> {
+  const response = await fetch(`/api/users/${id}`, options);
+  if (!response.ok) {
+    throw new HttpError(response);
+  }
 
-function useAbortablePromise<T>(
-  promise: (signal: AbortSignal | undefined) => Promise<T>,
-  inputs: Array<any>
-) {
-  const controller = useMemo(createAbortController, inputs);
-  const abort = () => controller.abort();
-
-  const state = usePromise(
-    () => promise(controller.signal),
-    inputs,
-    controller.signal,
-    abort
-  );
-
-  return {
-    ...state,
-    abort
-  };
+  return response.json();
 }
 
 function Users() {
@@ -44,7 +32,7 @@ function Users() {
   //   () => controller.abort()
   // );
 
-  const { data, loading, error, abort } = useAbortablePromise(
+  const [{ data, loading, error }, abort] = useAbortablePromise(
     signal =>
       Promise.all([
         fetchUserById(offset + 1, { signal }),
