@@ -1,4 +1,5 @@
 import { useMemo, useEffect, useReducer } from 'react';
+import { AbortError } from './errors';
 
 type State<T> = {
   data: T | null;
@@ -46,9 +47,11 @@ function reducer<T>(state: State<T>, action: Action<T>) {
 
 export default function usePromise<T>(
   promise: () => Promise<T>,
-  inputs: Array<string>
+  inputs: Array<any>,
+  signal?: AbortSignal | null,
+  onCancel?: () => void
 ) {
-  const [{ data, error, loading }, dispatch] = useReducer(reducer, {
+  const [state, dispatch] = useReducer(reducer, {
     data: null,
     error: null,
     loading: false
@@ -57,26 +60,47 @@ export default function usePromise<T>(
   const promiseFn = useMemo(() => promise, inputs);
 
   useEffect(() => {
-    let cancelled = false;
+    let unmounted = false;
+    let aborted = false;
+
+    function abort() {
+      aborted = true;
+
+      dispatch({ type: 'rejected', error: new AbortError() });
+    }
+
+    if (signal) {
+      if (signal.aborted) {
+        throw new AbortError();
+      }
+
+      signal.addEventListener('abort', abort);
+    }
 
     dispatch({ type: 'pending' });
 
     promiseFn().then(
       result => {
-        if (cancelled) return;
+        if (unmounted || aborted) return;
         dispatch({ type: 'resolved', data: result });
+        signal && signal.removeEventListener('abort', abort);
       },
       error => {
-        if (cancelled) return;
+        if (unmounted || aborted) return;
         dispatch({ type: 'rejected', error });
+        signal && signal.removeEventListener('abort', abort);
       }
     );
 
     return () => {
-      cancelled = true;
+      unmounted = true;
+      if (signal) {
+        signal.removeEventListener('abort', abort);
+      }
+      onCancel && onCancel();
     };
   }, [promiseFn]);
 
-  console.log({ data, error, loading });
-  return { data, error, loading };
+  console.log(state);
+  return state;
 }

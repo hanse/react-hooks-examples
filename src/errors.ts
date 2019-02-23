@@ -15,3 +15,9 @@ export class TimeoutError extends Error {
     this.timeout = timeout;
   }
 }
+
+export class AbortError extends DOMException {
+  constructor() {
+    super('Aborted', 'AbortError');
+  }
+}
