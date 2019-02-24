@@ -6,7 +6,7 @@ import { HttpError, TimeoutError } from './errors';
 import { timeout, abortable, delay } from './promise';
 
 const API_ROOT =
-  process.env.REACT_APP_API_ROOT || 'https://jsonplaceholder.typicode.com/';
+  process.env.REACT_APP_API_ROOT || 'https://jsonplaceholder.typicode.com';
 
 async function fetchUserById(
   id: number,
