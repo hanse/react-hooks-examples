@@ -5,13 +5,16 @@ import Button from './Button';
 import { HttpError, TimeoutError } from './errors';
 import { timeout, abortable, delay } from './promise';
 
+const API_ROOT =
+  process.env.REACT_APP_API_ROOT || 'https://jsonplaceholder.typicode.com/';
+
 async function fetchUserById(
   id: number,
   options: RequestInit = {}
 ): Promise<{ id: number; name: string }> {
   const response = await Promise.race([
     timeout(6000),
-    fetch(`https://jsonplaceholder.typicode.com/users/${id}`, options)
+    fetch(`${API_ROOT}/users/${id}`, options)
   ]);
 
   if (!response.ok) {
