@@ -1,6 +1,6 @@
 # react-hooks-examples
 
-Playground for React Hooks.
+Playground for React Hooks ([CodeSandbox](https://codesandbox.io/s/github/hanse/react-hooks-examples)).
 
 ## `useAbortablePromise`
 
