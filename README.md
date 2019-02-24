@@ -4,24 +4,39 @@ Playground for React Hooks.
 
 ## `useAbortablePromise`
 
-Manage Promise state and allow aborting promises using `AbortController`. `abort` will automatically be called in the `useEffect` cleanup function, but is also provided to the caller. Built on top of `usePromise`.
+Manage Promise state and allow aborting promises using `AbortController`. `abort` will automatically be called in the `useEffect` cleanup function, but is also provided to the caller to be able to abort in the event of e.g a custom timeout mechanism error since the [Fetch API]() does not support it natively.
 
 ```js
 function App() {
+  const [offset, setOffset] = useState(0);
+
   const [{ data, loading, error }, abort] = useAbortablePromise(
-    signal =>
-      Promise.all([
-        fetch('/1', { signal }),
-        fetch('/2', { signal }),
-        fetch('/3', { signal })
-      ]),
-    []
+    async signal => {
+      try {
+        return await Promise.all([
+          fetchUserById(offset + 1, { signal }),
+          fetchUserById(offset + 2, { signal }),
+          fetchUserById(offset + 3, { signal })
+        ]);
+      } catch (error) {
+        if (error instanceof TimeoutError) {
+          abort();
+        }
+
+        throw error;
+      }
+    },
+    [offset]
   );
 
   return (
     <>
-      <button onClick={() => abort()}>Abort</button>
-      <div>{JSON.stringify({ data, loading, error }, null, 2)}</div>
+      <Button onClick={() => abort()}>Abort</Button>
+      <Button onClick={() => setOffset(offset => offset + 1)}>
+        Increase Offset ({offset})
+      </Button>
+      <JsonPrettyPrinter value={{ data, loading, error }} />
+      {error && <p style={{ color: 'red' }}>{error.message}</p>}
     </>
   );
 }

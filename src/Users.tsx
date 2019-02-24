@@ -11,7 +11,7 @@ async function fetchUserById(
 ): Promise<{ id: number; name: string }> {
   const response = await Promise.race([
     timeout(6000),
-    fetch(`/api/users/${id}`, options)
+    fetch(`https://jsonplaceholder.typicode.com/users/${id}`, options)
   ]);
 
   if (!response.ok) {

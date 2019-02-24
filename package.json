@@ -1,5 +1,5 @@
 {
-  "name": "fetch-tester",
+  "name": "react-hooks-examples",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -12,6 +12,17 @@
     "react-scripts": "2.1.5",
     "typescript": "3.3.3"
   },
+  "keywords": [
+    "react",
+    "hooks",
+    "fetch",
+    "promise",
+    "AbortController",
+    "abort",
+    "useFetch",
+    "usePromise",
+    "useAbortablePromise"
+  ],
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -26,5 +37,8 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "prettier": {
+    "singleQuote": true
+  }
 }
