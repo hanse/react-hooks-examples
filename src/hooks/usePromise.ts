@@ -1,8 +1,7 @@
-import { useMemo, useEffect, useReducer } from 'react';
+import { useCallback, useEffect, useReducer } from 'react';
 import { AbortError } from '../utils/errors';
-import createAbortController from '../utils/createAbortController';
 
-type State<T> = {
+export type State<T> = {
   data: T | null;
   error: Error | null;
   loading: boolean;
@@ -50,7 +49,7 @@ function reducer<T>(state: State<T>, action: Action<T>) {
   }
 }
 
-export default function usePromise<T>(
+function usePromise<T>(
   promise: () => Promise<T>,
   inputs: Array<any>,
   signal?: AbortSignal | null,
@@ -62,7 +61,7 @@ export default function usePromise<T>(
     loading: false
   });
 
-  const promiseFn = useMemo(() => promise, inputs);
+  const promiseFn = useCallback(promise, inputs);
 
   useEffect(() => {
     let unmounted = false;
@@ -109,19 +108,4 @@ export default function usePromise<T>(
   return state;
 }
 
-export function useAbortablePromise<T>(
-  promise: (signal: AbortSignal | undefined) => Promise<T>,
-  inputs: Array<any>
-) {
-  const controller = useMemo(createAbortController, inputs);
-  const abort = () => controller.abort();
-
-  const state = usePromise(
-    () => promise(controller.signal),
-    inputs,
-    controller.signal,
-    abort
-  );
-
-  return [state, abort] as [State<T>, () => void];
-}
+export default usePromise;

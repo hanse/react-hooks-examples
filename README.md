@@ -12,9 +12,13 @@ REACT_APP_API_ROOT=/api yarn start
 
 Using the local api root, [create-react-app]() will set up a mock API using the proxy feature that has a fair delay before returning responses in order to be able to test aborting fetch requests that have lost a `Promise.race`.
 
+## `usePromise`
+
+Basic primitive for dealing with Promise states.
+
 ## `useAbortablePromise`
 
-Manage Promise state and allow aborting promises using `AbortController`. `abort` will automatically be called in the `useEffect` cleanup function, but is also provided to the caller to be able to abort in the event of e.g a custom timeout mechanism error since the [Fetch API]() does not support it natively.
+Wrap `usePromise` with a managed `AbortController` instance. `abort` will automatically be called in the `useEffect` cleanup function, but is also provided to the caller to be able to abort in the event of e.g a custom timeout mechanism error since the [Fetch API]() does not support it natively.
 
 ```js
 function App() {
@@ -51,3 +55,7 @@ function App() {
   );
 }
 ```
+
+## `useAbortablePromiseWithTimeout`
+
+Wraps `useAbortablePromise` and automatically calls `abort` when a `TimeoutError` is thrown.

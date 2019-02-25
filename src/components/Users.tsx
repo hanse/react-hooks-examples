@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { useAbortablePromise } from '../hooks/usePromise';
+import useAbortablePromise from '../hooks/useAbortablePromise';
 import JsonPrettyPrinter from './JsonPrettyPrinter';
 import Button from './Button';
 import { HttpError, TimeoutError } from '../utils/errors';
 import { timeout, abortable, delay } from '../utils/promise';
+import useAbortablePromiseWithTimeout from '../hooks/useAbortablePromiseWithTimeout';
 
 const API_ROOT =
   process.env.REACT_APP_API_ROOT || 'https://jsonplaceholder.typicode.com';
@@ -26,36 +27,15 @@ async function fetchUserById(
 
 function Users() {
   const [offset, setOffset] = useState(0);
-  //const controller = useMemo(createAbortController, [offset]);
 
-  // const { data, loading, error } = usePromise(
-  //   () =>
-  //     Promise.all([
-  //       fetchUserById(offset + 1, { signal: controller.signal }),
-  //       fetchUserById(offset + 2, { signal: controller.signal }),
-  //       fetchUserById(offset + 3, { signal: controller.signal })
-  //     ]),
-  //   [offset],
-  //   controller.signal,
-  //   () => controller.abort()
-  // );
-
-  const [{ data, loading, error }, abort] = useAbortablePromise(
+  const [{ data, loading, error }, abort] = useAbortablePromiseWithTimeout(
     async signal => {
-      try {
-        return await Promise.all([
-          fetchUserById(offset + 1, { signal }),
-          fetchUserById(offset + 2, { signal }),
-          fetchUserById(offset + 3, { signal }),
-          abortable(delay(1000).then(() => 'foo'), signal!)
-        ]);
-      } catch (error) {
-        if (error instanceof TimeoutError) {
-          abort();
-        }
-
-        throw error;
-      }
+      return Promise.all([
+        fetchUserById(offset + 1, { signal }),
+        fetchUserById(offset + 2, { signal }),
+        fetchUserById(offset + 3, { signal }),
+        abortable(delay(1000).then(() => 'foo'), signal!)
+      ]);
     },
     [offset]
   );
