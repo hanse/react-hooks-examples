@@ -1,8 +1,8 @@
 import React from 'react';
 import { render } from 'react-dom';
-import Users from './Users';
-import useToggle from './useToggle';
-import Button from './Button';
+import Users from './components/Users';
+import useToggle from './hooks/useToggle';
+import Button from './components/Button';
 
 function App() {
   const [mounted, toggle] = useToggle(false);

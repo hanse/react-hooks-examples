@@ -1,6 +1,6 @@
 import { useMemo, useEffect, useReducer } from 'react';
-import { AbortError } from './errors';
-import createAbortController from './createAbortController';
+import { AbortError } from '../utils/errors';
+import createAbortController from '../utils/createAbortController';
 
 type State<T> = {
   data: T | null;

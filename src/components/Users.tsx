@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useAbortablePromise } from './usePromise';
+import { useAbortablePromise } from '../hooks/usePromise';
 import JsonPrettyPrinter from './JsonPrettyPrinter';
 import Button from './Button';
-import { HttpError, TimeoutError } from './errors';
-import { timeout, abortable, delay } from './promise';
+import { HttpError, TimeoutError } from '../utils/errors';
+import { timeout, abortable, delay } from '../utils/promise';
 
 const API_ROOT =
   process.env.REACT_APP_API_ROOT || 'https://jsonplaceholder.typicode.com';

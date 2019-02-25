@@ -1,4 +1,4 @@
-import { TimeoutError, HttpError } from '../errors';
+import { TimeoutError, HttpError } from '../utils/errors';
 
 test('HttpError', () => {
   const response = new Response();
